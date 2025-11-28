@@ -1,0 +1,6 @@
+@Ecommerce520.APIV9_HostAddress = http://localhost:5117
+
+GET {{Ecommerce520.APIV9_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
