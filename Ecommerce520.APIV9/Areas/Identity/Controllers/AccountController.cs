@@ -1,9 +1,11 @@
 ﻿using Ecommerce520.APIV9.DTOs.Response;
+using Ecommerce520.APIV9.JwtFeatures;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Ecommerce520.APIV9.Areas.Identity.Controllers
@@ -17,18 +19,20 @@ namespace Ecommerce520.APIV9.Areas.Identity.Controllers
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly IRepository<ApplicationUserOTP> _applicationUserOTPRepository;
+        private readonly IJwtHandler _jwtHandler;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
             SignInManager<ApplicationUser> signInManager,
             IEmailSender emailSender,
-            IRepository<ApplicationUserOTP> applicationUserOTPRepository
-            )
+            IRepository<ApplicationUserOTP> applicationUserOTPRepository,
+            IJwtHandler jwtHandler)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _applicationUserOTPRepository = applicationUserOTPRepository;
+            _jwtHandler = jwtHandler;
         }
 
         [HttpPost("Register")]  
@@ -132,9 +136,11 @@ namespace Ecommerce520.APIV9.Areas.Identity.Controllers
                     });
                 }
             }
-            return Ok(new
+
+            var AccessToken = await _jwtHandler.GenerateAccessTokenAsync(user);
+            return Ok(new AuthenticatedResponse
             {
-                msg = "Login Successful"
+                AccessToken = AccessToken 
             });  
         }
         [HttpPost("ResendEmailConfirmation")]
@@ -311,6 +317,41 @@ namespace Ecommerce520.APIV9.Areas.Identity.Controllers
             return Ok (new
             {
                 msg = "Logout Successful"
+            });
+        }
+
+
+        [HttpPost]
+        [Route("refresh")]
+        public async Task<IActionResult> Refresh(TokenApiRequest tokenApiRequest)
+        {
+            if (tokenApiRequest is null || tokenApiRequest.AccessToken is null || tokenApiRequest.RefreshToken is null)
+                return BadRequest("Invalid client request");
+
+            string accessToken = tokenApiRequest.AccessToken;
+            string refreshToken = tokenApiRequest.RefreshToken;
+
+            var principal = _jwtHandler.GetPrincipalFromExpiredToken(accessToken);
+
+            var username = principal.Identity.Name; //this is mapped to the Name claim by default
+            //var user = _userContext.LoginModels.SingleOrDefault(u => u.UserName == username);
+            var user = _userManager.Users.FirstOrDefault(u => u.UserName == username);
+            if (user is null || user.RefreshToken != refreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+                return BadRequest("Invalid client request");
+
+
+
+
+            var newAccessToken = await _jwtHandler.GenerateAccessTokenAsync(user);
+            var newRefreshToken = _jwtHandler.GenerateRefreshToken();
+
+            user.RefreshToken = newRefreshToken;
+
+            await _userManager.UpdateAsync(user);
+            return Ok(new AuthenticatedResponse()
+            {
+                AccessToken = newAccessToken,
+                RefreshToken = newRefreshToken
             });
         }
     }

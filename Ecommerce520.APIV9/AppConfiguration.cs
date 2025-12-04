@@ -1,5 +1,6 @@
 ﻿
 
+using Ecommerce520.APIV9.JwtFeatures;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -45,6 +46,7 @@ namespace Ecommerce520.APIV9
             services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
             services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
             services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IJwtHandler, JwtHandler>();
             services.AddScoped<IDBInitializr, DBInitializr>();
         }
     }

@@ -1,8 +1,9 @@
 using Ecommerce520.APIV9;
 using Ecommerce520.APIV9.Configurations;
-using Scalar;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
-using Ecommerce520.APIV9.DTOs.Response;
+using System.Text;
 namespace Ecommerce520.APIV9520.APIV9520.APIV9
 {
     public class Program
@@ -29,6 +30,27 @@ namespace Ecommerce520.APIV9520.APIV9520.APIV9
             builder.Services.Config(connectionString);
             builder.Services.RegisterMapsterConfig();
 
+            var JwtSettings = builder.Configuration.GetSection("JwtSettings"); 
+
+            builder.Services.AddAuthentication(opt =>
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+
+                    ValidIssuer = JwtSettings["validIssuer"],
+                    ValidAudience = JwtSettings["validAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings["securityKey"]))
+                };
+            });
+
 
             var app = builder.Build();
 
@@ -46,7 +68,7 @@ namespace Ecommerce520.APIV9520.APIV9520.APIV9
             }
 
             app.UseHttpsRedirection();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
