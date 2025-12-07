@@ -18,6 +18,8 @@ namespace Ecommerce520.APIV9.DataAccess
         public DbSet<ApplicationUserOTP> ApplicationUserOTPs { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
 
         //override protected void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
@@ -30,6 +32,7 @@ namespace Ecommerce520.APIV9.DataAccess
             modelBuilder.Entity<ProductSubImage>().HasKey(p=>new { p.ProductId , p.Img}); 
             modelBuilder.Entity<ProductColor>().HasKey(p=>new { p.ProductId , p.Color}); 
             modelBuilder.Entity<Cart>().HasKey(p=>new { p.ProductId , p.ApplicationUserId}); 
+            modelBuilder.Entity<OrderItem>().HasKey(p=>new { p.ProductId , p.OrderId}); 
             modelBuilder.Entity<Brand>().Property(b=>b.Img).HasDefaultValue("defaultImg.png"); 
         }
     }

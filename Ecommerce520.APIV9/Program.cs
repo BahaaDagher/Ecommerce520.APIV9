@@ -3,6 +3,7 @@ using Ecommerce520.APIV9.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
+using Stripe;
 using System.Text;
 namespace Ecommerce520.APIV9520.APIV9520.APIV9
 {
@@ -50,6 +51,8 @@ namespace Ecommerce520.APIV9520.APIV9520.APIV9
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtSettings["securityKey"]))
                 };
             });
+            //builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
+            StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
 
 
             var app = builder.Build();

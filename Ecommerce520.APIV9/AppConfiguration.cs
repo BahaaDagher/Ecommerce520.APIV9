@@ -44,6 +44,8 @@ namespace Ecommerce520.APIV9
             services.AddScoped<IRepository<ProductColor>, Repository<ProductColor>>();
             services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
+            services.AddScoped<IRepository<Order>, Repository<Order>>();
+            services.AddScoped<IRepository<OrderItem>, Repository<OrderItem>>();
             services.AddScoped<IRepository<ApplicationUserOTP>, Repository<ApplicationUserOTP>>();
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IJwtHandler, JwtHandler>();
