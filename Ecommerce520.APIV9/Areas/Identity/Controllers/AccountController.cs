@@ -138,9 +138,17 @@ namespace Ecommerce520.APIV9.Areas.Identity.Controllers
             }
 
             var AccessToken = await _jwtHandler.GenerateAccessTokenAsync(user);
+            var refreshToken = _jwtHandler.GenerateRefreshToken();
+
+            user.RefreshToken = refreshToken;
+            user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
+
+            await _userManager.UpdateAsync(user);
+
             return Ok(new AuthenticatedResponse
             {
-                AccessToken = AccessToken 
+                AccessToken = AccessToken  ,
+                RefreshToken = refreshToken , 
             });  
         }
         [HttpPost("ResendEmailConfirmation")]
