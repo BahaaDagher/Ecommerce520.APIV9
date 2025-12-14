@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace Ecommerce520.APIV9.Areas.Admin.Controllers
 {
@@ -12,10 +13,12 @@ namespace Ecommerce520.APIV9.Areas.Admin.Controllers
     public class BrandsController : ControllerBase
     {
         IRepository<Brand> _brandRepository; //= new Repository<Brand>();
+        private readonly IStringLocalizer<SharedResources> _localizer;
 
-        public BrandsController(IRepository<Brand> brandRepository)
+        public BrandsController(IRepository<Brand> brandRepository, IStringLocalizer<SharedResources> iStringLocalizer)
         {
             _brandRepository = brandRepository;
+            _localizer = iStringLocalizer;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -119,7 +122,7 @@ namespace Ecommerce520.APIV9.Areas.Admin.Controllers
             await _brandRepository.CommitAsync();
             return Ok(new
             {
-                msg = "Brand Updated Successfully"
+                msg = _localizer["UpdateBrand"].Value,
             }); 
         }
         [HttpDelete("{id}")]
